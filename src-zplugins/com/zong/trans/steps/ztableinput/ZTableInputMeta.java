@@ -23,16 +23,29 @@ import org.pentaho.di.trans.Trans;
 import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDataInterface;
+import org.pentaho.di.trans.step.StepIOMeta;
+import org.pentaho.di.trans.step.StepIOMetaInterface;
 import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
+import org.pentaho.di.trans.step.errorhandling.Stream;
+import org.pentaho.di.trans.step.errorhandling.StreamIcon;
 import org.pentaho.di.trans.step.errorhandling.StreamInterface;
+import org.pentaho.di.trans.step.errorhandling.StreamInterface.StreamType;
 import org.w3c.dom.Node;
 
 public class ZTableInputMeta extends BaseStepMeta implements StepMetaInterface {
 
 	private DatabaseMeta dbMeta;
-	private String sql;
+	private String table;
+
+	public String getTable() {
+		return table;
+	}
+
+	public void setTable(String table) {
+		this.table = table;
+	}
 
 	public DatabaseMeta getDbMeta() {
 		return dbMeta;
@@ -40,14 +53,6 @@ public class ZTableInputMeta extends BaseStepMeta implements StepMetaInterface {
 
 	public void setDbMeta(DatabaseMeta dbMeta) {
 		this.dbMeta = dbMeta;
-	}
-
-	public String getSql() {
-		return sql;
-	}
-
-	public void setSql(String sql) {
-		this.sql = sql;
 	}
 
 	@Override
@@ -60,7 +65,7 @@ public class ZTableInputMeta extends BaseStepMeta implements StepMetaInterface {
 	public String getXML() throws KettleXMLException {
 		StringBuffer retval = new StringBuffer();
 		retval.append("    " + XMLHandler.addTagValue("db", dbMeta == null ? "" : dbMeta.getName()));
-		retval.append("    " + XMLHandler.addTagValue("sql", sql));
+		retval.append("    " + XMLHandler.addTagValue("table", table));
 		return retval.toString();
 	}
 
@@ -69,7 +74,7 @@ public class ZTableInputMeta extends BaseStepMeta implements StepMetaInterface {
 			throws KettleXMLException {
 		try {
 			dbMeta = DatabaseMeta.findDatabase(databases, XMLHandler.getTagValue(stepnode, "db"));
-			sql = XMLHandler.getTagValue(stepnode, "sql");
+			table = XMLHandler.getTagValue(stepnode, "table");
 		} catch (Exception e) {
 			throw new KettleXMLException("加载XML步骤失败", e);
 		}
@@ -117,7 +122,7 @@ public class ZTableInputMeta extends BaseStepMeta implements StepMetaInterface {
 
 		Database db = new Database(loggingObject, dbMeta);
 		databases = new Database[] { db };
-		String sNewSQL = sql;
+		String sNewSQL = "select * from " + table;
 		RowMetaInterface add = null;
 		try {
 			add = db.getQueryFields(sNewSQL, param);
@@ -163,4 +168,17 @@ public class ZTableInputMeta extends BaseStepMeta implements StepMetaInterface {
 			}
 		}
 	}
+
+	public StepIOMetaInterface getStepIOMeta() {
+		if (ioMeta == null) {
+
+			ioMeta = new StepIOMeta(true, true, false, false, false, false);
+
+			StreamInterface stream = new Stream(StreamType.INFO, null, "这些行作为参数", StreamIcon.INFO, null);
+			ioMeta.addStream(stream);
+		}
+
+		return ioMeta;
+	}
+
 }

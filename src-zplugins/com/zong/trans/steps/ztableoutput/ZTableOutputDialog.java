@@ -1,4 +1,4 @@
-package com.zong.trans.steps.ztableinput;
+package com.zong.trans.steps.ztableoutput;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -18,15 +18,15 @@ import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
 
-public class ZTableInputDialog extends BaseStepDialog implements StepDialogInterface {
+public class ZTableOutputDialog extends BaseStepDialog implements StepDialogInterface {
 
 	private CCombo dbCombo;
 	private Text tableTx;
-	private ZTableInputMeta input;
+	private ZTableOutputMeta input;
 
-	public ZTableInputDialog(Shell parent, Object in, TransMeta transMeta, String stepname) {
+	public ZTableOutputDialog(Shell parent, Object in, TransMeta transMeta, String stepname) {
 		super(parent, (BaseStepMeta) in, transMeta, stepname);
-		input = (ZTableInputMeta) in;
+		input = (ZTableOutputMeta) in;
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class ZTableInputDialog extends BaseStepDialog implements StepDialogInter
 
 		Label sqlLb = new Label(shell, SWT.NONE);
 		sqlLb.setBounds(10, 70, 80, 25);
-		sqlLb.setText("传输表");
+		sqlLb.setText("输出表");
 		props.setLook(sqlLb);
 		tableTx = new Text(shell, SWT.BORDER | SWT.READ_ONLY);
 		tableTx.setBounds(90, 70, 200, 25);
@@ -154,4 +154,5 @@ public class ZTableInputDialog extends BaseStepDialog implements StepDialogInter
 		input.setDbMeta(transMeta.findDatabase(dbCombo.getText()));
 		input.setTable(tableTx.getText());
 	}
+
 }
